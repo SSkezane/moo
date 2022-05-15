@@ -102,3 +102,55 @@ func GetBlow(guess []int, answer []int) int {
 	}
 	return count
 }
+
+func Parmutation(n, r int) int {
+	limit := n - r
+	var max_candidates func(int) int
+	max_candidates = func(n int) int {
+		if n == limit {
+			return 1
+		}
+		return n * max_candidates(n-1)
+	}
+	return max_candidates(n)
+}
+
+func GetCandidates(difficulty int) [][]int {
+	var index int
+	var flag bool
+	var CreateCstimate func(int)
+	used_num := make([]int, difficulty-1)
+	max_candidates := Parmutation(10, difficulty)
+
+	candidates := make([][]int, max_candidates)
+	for i := 0; i < max_candidates; i++ {
+		candidates[i] = make([]int, difficulty)
+	}
+
+	CreateCstimate = func(current_dif int) {
+		for i := 0; i < 10; i++ {
+			// 上の位に同じ数値が使われていないか確認
+			for j := 0; j < difficulty-current_dif; j++ {
+				if i == used_num[j] {
+					flag = true
+					break
+				}
+			}
+			if flag {
+				flag = false
+				continue
+			}
+			if current_dif > 1 {
+				candidates[index][difficulty-current_dif] = i
+				used_num[difficulty-current_dif] = i
+				CreateCstimate(current_dif - 1)
+			} else if current_dif == 1 {
+				copy(candidates[index], used_num)
+				candidates[index][difficulty-1] = i
+				index++
+			}
+		}
+	}
+	CreateCstimate(difficulty)
+	return candidates
+}
